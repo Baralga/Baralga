@@ -180,10 +180,9 @@ public class ScreenUtils {
      * @return the screen bounds.
      */
     public static Rectangle getScreenBounds(final Component invoker) {
-        // to handle multi-display case
         Rectangle bounds = (Rectangle) SCREEN_BOUNDS.clone();
 
-        if (invoker != null && !(invoker instanceof JApplet) && invoker.getGraphicsConfiguration() != null) {
+        if (isValidComponentForScreenBounds(invoker)) {
             Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(invoker.getGraphicsConfiguration());
             bounds.x += insets.left;
             bounds.y += insets.top;
@@ -193,6 +192,13 @@ public class ScreenUtils {
 
         return bounds;
     }
+
+    private static boolean isValidComponentForScreenBounds(final Component invoker) {
+        return invoker != null
+                && !(invoker instanceof JApplet)
+                && invoker.getGraphicsConfiguration() != null;
+    }
+
 
     /**
      * Gets the local monitor's screen bounds.
@@ -232,53 +238,42 @@ public class ScreenUtils {
      * @return rect after its position has been modified
      */
     public static Rectangle ensureOnScreen(final Rectangle rect) {
-        // optimize it so that it is faster for most cases
         Rectangle localScreenBounds = getLocalScreenBounds();
         if (localScreenBounds.contains(rect)) {
             return rect;
         }
 
-        // see if the top left is on any of the screens
-        Rectangle containgScreen = null;
+        Rectangle containingScreen = findContainingScreen(rect);
+        if (containingScreen != null) {
+            return adjustPositionOnScreen(rect, containingScreen);
+        } else {
+            // Inline the logic for centering on the primary screen
+            Rectangle primaryScreen = SCREENS_WITH_INSETS[0];
+            rect.x = primaryScreen.x + (primaryScreen.width - rect.width) / 2;
+            rect.y = primaryScreen.y + (primaryScreen.height - rect.height) / 2;
+            return rect;
+        }
+    }
+    private static Rectangle findContainingScreen(final Rectangle rect) {
         Point rectPos = rect.getLocation();
         for (Rectangle screenBounds : SCREENS_WITH_INSETS) {
-            if (screenBounds.contains(rectPos)) {
-                containgScreen = screenBounds;
-                break;
+            if (screenBounds.contains(rectPos) || screenBounds.intersects(rect)) {
+                return screenBounds;
             }
         }
-        // if not see if rect partial on any screen
-        for (Rectangle screenBounds : SCREENS_WITH_INSETS) {
-            if (screenBounds.intersects(rect)) {
-                containgScreen = screenBounds;
-                break;
-            }
-        }
-        // check if it was on any screen
-        if (containgScreen == null) {
-            // it was not on any of the screens so center it on the first screen
-            rect.x = (SCREENS_WITH_INSETS[0].width - rect.width) / 2;
-            rect.y = (SCREENS_WITH_INSETS[0].width - rect.width) / 2;
-            return rect;
-        } else {
-            // move rect so it is completely on a single screen
-            // check X
-            int rectRight = rect.x + rect.width;
-            int screenRight = containgScreen.x + containgScreen.width;
-            if (rectRight > screenRight) {
-                rect.x = screenRight - rect.width;
-            }
-            if (rect.x < containgScreen.x) rect.x = containgScreen.x;
-            // check Y
-            int rectBottom = rect.y + rect.height;
-            int screenBottom = containgScreen.y + containgScreen.height;
-            if (rectBottom > screenBottom) {
-                rect.y = screenBottom - rect.height;
-            }
-            if (rect.y < containgScreen.y) rect.y = containgScreen.y;
-            // return corrected rect
-            return rect;
-        }
+        return null; // If the rectangle doesn't intersect any screen
+    }
+    private static Rectangle adjustPositionOnScreen(final Rectangle rect, final Rectangle containingScreen) {
+        rect.x = Math.max(containingScreen.x, Math.min(rect.x, containingScreen.x + containingScreen.width - rect.width));
+        rect.y = Math.max(containingScreen.y, Math.min(rect.y, containingScreen.y + containingScreen.height - rect.height));
+        return rect;
+    }
+
+    private static Rectangle centerRectangleOnScreen(final Rectangle rect) {
+        Rectangle primaryScreen = SCREENS_WITH_INSETS[0];
+        rect.x = primaryScreen.x + (primaryScreen.width - rect.width) / 2;
+        rect.y = primaryScreen.y + (primaryScreen.height - rect.height) / 2;
+        return rect;
     }
 
     /**
