@@ -14,7 +14,7 @@ public class DurationFormatTest {
 
     private DurationFormat format = new DurationFormat();
 
-    private UserSettings.DurationFormat initialDurationFormat;
+    private String initialDurationFormat;
 
     @BeforeEach
     public void before() {
@@ -23,7 +23,8 @@ public class DurationFormatTest {
 
     @Test
     public void formatDurationInHoursAndMinutes() {
-        UserSettings.instance().setDurationFormat(UserSettings.DurationFormat.HOURS_AND_MINUTES);
+        // Adjusted to use string constant
+        UserSettings.instance().setDurationFormat(UserSettings.DURATION_FORMAT_HOURS_AND_MINUTES);
         ProjectActivity act;
         DateTime startTime = new DateTime(DateUtils.getNow());
 
@@ -45,6 +46,7 @@ public class DurationFormatTest {
 
     @AfterEach
     public void after() {
+        // Adjusted to use string constant
         UserSettings.instance().setDurationFormat(initialDurationFormat);
     }
 

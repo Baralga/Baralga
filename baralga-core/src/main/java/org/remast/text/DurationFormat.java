@@ -35,7 +35,8 @@ public class DurationFormat extends NumberFormat {
     }
 
     private boolean displayAsHoursAndMinutes() {
-        return UserSettings.DurationFormat.HOURS_AND_MINUTES.equals(UserSettings.instance().getDurationFormat());
+        // Adjusted to use string constants
+        return UserSettings.DURATION_FORMAT_HOURS_AND_MINUTES.equals(UserSettings.instance().getDurationFormat());
     }
 
     private String formatAsHoursAndMinutes(final double duration) {
