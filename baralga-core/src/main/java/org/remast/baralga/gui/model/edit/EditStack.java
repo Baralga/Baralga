@@ -1,18 +1,18 @@
 /**
- * 
+ *
  */
 package org.remast.baralga.gui.model.edit;
 
-import java.util.List;
-import java.util.Stack;
-
+import com.google.common.eventbus.Subscribe;
 import org.remast.baralga.gui.actions.RedoAction;
 import org.remast.baralga.gui.actions.UndoAction;
 import org.remast.baralga.gui.events.BaralgaEvent;
 import org.remast.baralga.gui.model.PresentationModel;
+import org.remast.baralga.gui.model.UndoRedoManager;
 import org.remast.baralga.model.ProjectActivity;
 
-import com.google.common.eventbus.Subscribe;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * Edit stack for undoing and redoing edit actions. The stack observes
@@ -44,6 +44,10 @@ public class EditStack {
     /** The model. */
     private PresentationModel model;
 
+    /**Utility type to manage undo/redo*/
+    private UndoRedoManager undoRedoManager;
+
+
     /**
      * Creates a new edit stack for the given model.
      * @param model the edited model to create stack for
@@ -52,11 +56,11 @@ public class EditStack {
         this.model = model;
         this.undoAction = new UndoAction(this);
         this.redoAction = new RedoAction(this);
-
+        this.undoRedoManager = new UndoRedoManager();
         updateActions();
     }
 
-    @Subscribe 
+    @Subscribe
     public void update(final Object eventObject) {
         if (!(eventObject instanceof BaralgaEvent)) {
             return;
@@ -113,71 +117,16 @@ public class EditStack {
     /**
      * Undo last edit action.
      */
-    public final void undo() {
-        if (undoStack.isEmpty()) {
-            return;
-        }
-
-        final BaralgaEvent event = undoStack.pop();
-        redoStack.push(event);
-
-        executeUndo(event);
-
+    public void undo() {
+        undoRedoManager.undo();
         updateActions();
     }
-
     /**
      * Redo last edit action.
      */
-    public final void redo() {
-        if (redoStack.isEmpty()) {
-            return;
-        }
-
-        final BaralgaEvent event = redoStack.pop();
-        undoStack.push(event);
-
-        executeRedo(event);
-
+    public void redo() {
+        undoRedoManager.redo();
         updateActions();
-    }
-
-    /**
-     * Undoes the given event.
-     * @param event the event to undo
-     */
-    @SuppressWarnings("unchecked")
-    private void executeUndo(final BaralgaEvent event) {
-        if (BaralgaEvent.PROJECT_ACTIVITY_REMOVED == event.getType()) {
-            model.addActivities(
-                    (List<ProjectActivity>) event.getData(),
-                    this
-            );
-        } else if (BaralgaEvent.PROJECT_ACTIVITY_ADDED == event.getType()) {
-            model.removeActivities(
-                    (List<ProjectActivity>) event.getData(),
-                    this
-            );
-        }
-    }
-
-    /**
-     * Redoes the given event.
-     * @param event the event to redo
-     */
-    @SuppressWarnings("unchecked")
-    private void executeRedo(final BaralgaEvent event) {
-        if (BaralgaEvent.PROJECT_ACTIVITY_REMOVED == event.getType()) {
-            model.removeActivities(
-                    (List<ProjectActivity>) event.getData(), 
-                    this
-            );
-        } else if (BaralgaEvent.PROJECT_ACTIVITY_ADDED == event.getType()) {
-            model.addActivities(
-                    (List<ProjectActivity>) event.getData(), 
-                    this
-            );
-        }
     }
 
 }

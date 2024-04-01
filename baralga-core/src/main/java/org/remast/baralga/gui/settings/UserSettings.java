@@ -32,7 +32,32 @@ public final class UserSettings {
 	public static final String DEFAULT_FILE_NAME = "Data.baralga.xml"; //$NON-NLS-1$
 
 	public static final long DEFAULT_INACTIVITY_THRESHOLD = 1000L * 60 * 5; // 5 minutes
-	
+
+
+	// Duration format - inlined DurationFormat enum functionality
+	public static final String DURATION_FORMAT_DECIMAL = "DECIMAL";
+	public static final String DURATION_FORMAT_HOURS_AND_MINUTES = "HOURS_AND_MINUTES";
+
+	/** The key for duration format. */
+	public static final String DURATION_FORMAT = "settings.durationFormat"; //$NON-NLS-1$
+
+	public String getDurationFormat() {
+		return doGetString(DURATION_FORMAT, DURATION_FORMAT_DECIMAL);
+	}
+
+	public void setDurationFormat(final String durationFormat) {
+		userConfig.setProperty(DURATION_FORMAT, durationFormat);
+		save();
+	}
+
+	public void save() {
+		try (OutputStream out = new FileOutputStream(userConfigFile)) {
+			userConfig.store(out, "Created at " + new Date());
+		} catch (IOException e) {
+			log.error(e.getLocalizedMessage(), e);
+		}
+	}
+
 	/**
 	 * Get the location of the data file.
 	 * @return the path of the data file
@@ -66,7 +91,7 @@ public final class UserSettings {
 		try {
 			userConfig = new Properties();
 			if (userConfigFile.exists()) {
-			    userConfig.load(new FileInputStream(userConfigFile));
+				userConfig.load(new FileInputStream(userConfigFile));
 			}
 		} catch (Exception e) {
 			log.error(e.getLocalizedMessage(), e);
@@ -81,7 +106,7 @@ public final class UserSettings {
 	/** Name of the lock file. */
 	private static final String LOCK_FILE_NAME = "lock"; //$NON-NLS-1$
 
-	/** 
+	/**
 	 * Gets the location of the lock file.
 	 * @return the location of the lock file
 	 */
@@ -111,7 +136,7 @@ public final class UserSettings {
 	 */
 	public void setLastExcelExportLocation(final String excelExportLocation) {
 		userConfig.setProperty(LAST_EXCEL_EXPORT_LOCATION, excelExportLocation);
-		
+
 		// Auto save change
 		save();
 	}
@@ -138,7 +163,7 @@ public final class UserSettings {
 	 */
 	public void setLastDataExportLocation(final String dataExportLocation) {
 		userConfig.setProperty(LAST_DATA_EXPORT_LOCATION, dataExportLocation);
-		
+
 		// Auto save change
 		save();
 	}
@@ -165,7 +190,7 @@ public final class UserSettings {
 	 */
 	public void setLastCsvExportLocation(final String csvExportLocation) {
 		userConfig.setProperty(LAST_CSV_EXPORT_LOCATION, csvExportLocation);
-		
+
 		// Auto save change
 		save();
 	}
@@ -192,7 +217,7 @@ public final class UserSettings {
 	 */
 	public void setLastICalExportLocation(final String iCalExportLocation) {
 		userConfig.setProperty(LAST_ICAL_EXPORT_LOCATION, iCalExportLocation);
-		
+
 		// Auto save change
 		save();
 	}
@@ -211,7 +236,7 @@ public final class UserSettings {
 
 	public void setLastDescription(final String lastDescription) {
 		userConfig.setProperty(LAST_DESCRIPTION, lastDescription);
-		
+
 		// Auto save change
 		save();
 	}
@@ -230,7 +255,7 @@ public final class UserSettings {
 
 	public void setActive(final boolean active) {
 		userConfig.setProperty(ACTIVE, String.valueOf(active));
-		
+
 		// Auto save change
 		save();
 	}
@@ -249,7 +274,7 @@ public final class UserSettings {
 
 	public void setActiveProjectId(final String activeProjectId) {
 		userConfig.setProperty(ACTIVE_PROJECT_ID, String.valueOf(activeProjectId));
-		
+
 		// Auto save change
 		save();
 	}
@@ -272,7 +297,7 @@ public final class UserSettings {
 		} else {
 			userConfig.setProperty(START, String.valueOf(start.getMillis()));
 		}
-		
+
 		// Auto save change
 		save();
 	}
@@ -287,7 +312,7 @@ public final class UserSettings {
 
 	public void setFilterSelectedSpanType(final SpanType spanType) {
 		userConfig.setProperty(SELECTED_SPAN_TYPE, spanType.name());
-		
+
 		// Auto save change
 		save();
 	}
@@ -310,7 +335,7 @@ public final class UserSettings {
 
 	public void setFilterSelectedProjectId(final String projectId) {
 		userConfig.setProperty(SELECTED_PROJECT_ID, String.valueOf(projectId));
-		
+
 		// Auto save change
 		save();
 	}
@@ -346,7 +371,7 @@ public final class UserSettings {
 
 	public void setShownCategory(final String shownCategory) {
 		userConfig.setProperty(SHOWN_CATEGORY, shownCategory);
-		
+
 		// Auto save change
 		save();
 	}
@@ -365,7 +390,7 @@ public final class UserSettings {
 
 	public void setRememberWindowSizeLocation(final boolean rememberWindowSizeLocation) {
 		userConfig.setProperty(REMEMBER_WINDOWSIZE_LOCATION, String.valueOf(rememberWindowSizeLocation));
-		
+
 		// Auto save change
 		save();
 	}
@@ -384,7 +409,7 @@ public final class UserSettings {
 
 	public void setShowStopwatch(final boolean showStopwatch) {
 		userConfig.setProperty(SHOW_STOPWATCH, String.valueOf(showStopwatch));
-		
+
 		// Auto save change
 		save();
 	}
@@ -408,7 +433,7 @@ public final class UserSettings {
 	public void setWindowSize(final Dimension size) {
 		final String encodedSize = size.getWidth() + "|" + size.getHeight(); //$NON-NLS-1$
 		userConfig.setProperty(WINDOW_SIZE, encodedSize);
-		
+
 		// Auto save change
 		save();
 	}
@@ -434,12 +459,12 @@ public final class UserSettings {
 	public void setWindowLocation(final Point location) {
 		final String encodedLocation = location.getX() + "|" + location.getY(); //$NON-NLS-1$
 		userConfig.setProperty(WINDOW_LOCATION, encodedLocation);
-		
+
 		// Auto save change
 		save();
 	}
-	
-	
+
+
 	//------------------------------------------------
 	// Stopwatch Window size
 	//------------------------------------------------
@@ -458,7 +483,7 @@ public final class UserSettings {
 	public void setStopwatchWindowSize(final Dimension size) {
 		final String encodedSize = size.getWidth() + "|" + size.getHeight(); //$NON-NLS-1$
 		userConfig.setProperty(STOPWATCH_WINDOW_SIZE, encodedSize);
-		
+
 		// Auto save change
 		save();
 	}
@@ -482,34 +507,34 @@ public final class UserSettings {
 	public void setStopwatchWindowLocation(final Point location) {
 		final String encodedLocation = location.getX() + "|" + location.getY(); //$NON-NLS-1$
 		userConfig.setProperty(STOPWATCH_WINDOW_LOCATION, encodedLocation);
-		
+
 		// Auto save change
 		save();
 	}
 
 
-    //------------------------------------------------
-    // Duration format
-    //------------------------------------------------
+	//------------------------------------------------
+	// Duration format
+	//------------------------------------------------
 
-    public enum DurationFormat {
-        DECIMAL,
-        HOURS_AND_MINUTES
-    }
+//    public enum DurationFormat {
+//        DECIMAL,
+//        HOURS_AND_MINUTES
+//    }
 
-    /** The key for duration format. */
-    public static final String DURATION_FORMAT = "settings.durationFormat"; //$NON-NLS-1$
-
-    public DurationFormat getDurationFormat() {
-        return DurationFormat.valueOf(doGetString(DURATION_FORMAT, DurationFormat.DECIMAL.name()));
-    }
-
-    public void setDurationFormat(final DurationFormat durationFormat) {
-        userConfig.setProperty(DURATION_FORMAT, durationFormat.name());
-
-        // Auto save change
-        save();
-    }
+//    /** The key for duration format. */
+//    public static final String DURATION_FORMAT = "settings.durationFormat"; //$NON-NLS-1$
+//
+//    public DurationFormat getDurationFormat() {
+//        return DurationFormat.valueOf(doGetString(DURATION_FORMAT, DurationFormat.DECIMAL.name()));
+//    }
+//
+//    public void setDurationFormat(final DurationFormat durationFormat) {
+//        userConfig.setProperty(DURATION_FORMAT, durationFormat.name());
+//
+//        // Auto save change
+//        save();
+//    }
 
 	//------------------------------------------------
 	//  User Credentials
@@ -562,7 +587,7 @@ public final class UserSettings {
 	}
 
 	/**
-	 * Getter that handle errors gracefully meaning errors are logged 
+	 * Getter that handle errors gracefully meaning errors are logged
 	 * but applications continues with the default value.
 	 * @param key the key of the property to get
 	 * @param defaultValue the default value of the property to get
@@ -578,7 +603,7 @@ public final class UserSettings {
 	}
 
 	/**
-	 * Getter that handle errors gracefully meaning errors are logged 
+	 * Getter that handle errors gracefully meaning errors are logged
 	 * but applications continues with the default value.
 	 * @param key the key of the property to get
 	 * @param defaultValue the default value of the property to get
@@ -586,7 +611,7 @@ public final class UserSettings {
 	 */
 	private Long doGetLong(final String key, final Long defaultValue) {
 		try {
-		    final String value = userConfig.getProperty(key, defaultValue == null ? null : String.valueOf(defaultValue));
+			final String value = userConfig.getProperty(key, defaultValue == null ? null : String.valueOf(defaultValue));
 			return value == null ? null : Long.valueOf(value);
 		} catch (Throwable t) {
 			log.error(t.getLocalizedMessage(), t);
@@ -595,7 +620,7 @@ public final class UserSettings {
 	}
 
 	/**
-	 * Getter that handle errors gracefully meaning errors are logged 
+	 * Getter that handle errors gracefully meaning errors are logged
 	 * but applications continues with the default value.
 	 * @param key the key of the property to get
 	 * @param defaultValue the default value of the property to get
@@ -611,7 +636,7 @@ public final class UserSettings {
 	}
 
 	/**
-	 * Getter that handle errors gracefully meaning errors are logged 
+	 * Getter that handle errors gracefully meaning errors are logged
 	 * but applications continues with the default value.
 	 * @param key the key of the property to get
 	 * @param defaultValue the default value of the property to get
@@ -621,13 +646,13 @@ public final class UserSettings {
 		try {
 			Long defaultMillis = null;
 			if (defaultValue != null) {
-				defaultMillis = defaultValue.getMillis();	
+				defaultMillis = defaultValue.getMillis();
 			}
 
-            final String dateMillisecondsString = userConfig.getProperty(key, defaultMillis != null ? String.valueOf(defaultMillis) : null);
-            if (dateMillisecondsString == null) {
-                return null;
-            }
+			final String dateMillisecondsString = userConfig.getProperty(key, defaultMillis != null ? String.valueOf(defaultMillis) : null);
+			if (dateMillisecondsString == null) {
+				return null;
+			}
 
 			final Long dateMilliseconds = Long.valueOf(dateMillisecondsString);
 			if (dateMilliseconds == null) {
@@ -639,15 +664,6 @@ public final class UserSettings {
 			log.error(t.getLocalizedMessage(), t);
 			return defaultValue;
 		}
-	}
-	
-    public void save() {
-		try (OutputStream out = new FileOutputStream(userConfigFile)) {
-			userConfig.store(out, "Created at " + new Date());
-		} catch (IOException e) {
-			log.error(e.getLocalizedMessage(), e);
-		}
-		// Ignore
 	}
 
 	public long getInactivityThreshold() {
